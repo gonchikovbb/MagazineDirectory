@@ -29,19 +29,30 @@ class AuthorRepository
         $author->setId($data['id']);
     }
 
-    public function index(): array
+    public function countAuthors()
     {
-        $sth =  $this->connection->query("SELECT * FROM authors");
+        $sth = $this->connection->query("SELECT COUNT(*) FROM authors");
+
+        $sth->execute();
+
+        $data = $sth->fetch();
+
+        return $data['count'];
+    }
+
+    public function getLimitAuthors(int $offset, int $size_page)
+    {
+        $sth = $this->connection->query("SELECT * FROM authors LIMIT $size_page OFFSET $offset");
 
         $authors = [];
 
         while ($row = $sth->fetch(\PDO::FETCH_ASSOC)) {
 
             $authors[] = [
-              'id' => $row['id'],
-              'last_name' => $row['last_name'],
-              'first_name' => $row['first_name'],
-              'surname' => $row['surname']
+                'id' => $row['id'],
+                'last_name' => $row['last_name'],
+                'first_name' => $row['first_name'],
+                'surname' => $row['surname']
             ];
         }
         return $authors;

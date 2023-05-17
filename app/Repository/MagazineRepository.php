@@ -32,6 +32,38 @@ class MagazineRepository
         $magazine->setId($data['id']);
     }
 
+    public function countMagazines()
+    {
+        $sth = $this->connection->query("SELECT COUNT(*) FROM magazines");
+
+        $sth->execute();
+
+        $data = $sth->fetch();
+
+        return $data['count'];
+    }
+
+    public function getLimitMagazines(int $offset, int $size_page)
+    {
+        $sth = $this->connection->query("SELECT * FROM magazines LIMIT $size_page OFFSET $offset");
+
+        $magazines = [];
+
+        while ($row = $sth->fetch(\PDO::FETCH_ASSOC)) {
+
+            $magazines[] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'short_description' => $row['short_description'],
+                'photo_path' => $row['photo_path'],
+                'photo_name' => $row['photo_name'],
+                'magazine_release_date' => $row['magazine_release_date'],
+                'photo_url' => $row['photo_url']
+            ];
+        }
+        return $magazines;
+    }
+
     public function index(): array
     {
         $sth =  $this->connection->query("SELECT * FROM magazines");

@@ -32,11 +32,35 @@ class MagazineController
 
     public function index(): string
     {
+        $data = json_decode(json_encode(json_decode(file_get_contents('php://input'),true),true),true);
+
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             if (empty($errorMessages)) {
 
-                $magazines = $this->magazineRepository->index();
+                // Поверка, есть ли GET запрос
+                if (isset($data['page'])) {
+                    // Если да то переменной $page присваиваем его
+                    $page = $data['page'];
+                } else { // Иначе
+                    // Присваиваем $page один
+                    $page = 1;
+                }
+
+                // Назначаем количество данных на одной странице
+                $perPage = $data['perPage'];
+
+                // Вычисляем с какого объекта начать выводить
+                $offset = ($page-1) * $perPage;
+
+                // Количество авторов
+                $total_rows = $this->magazineRepository->countMagazines();
+
+                // Вычисляем количество страниц
+                $total_pages = ceil($total_rows / $perPage);
+
+                // Создаём SQL запрос для получения данных
+                $magazines = $this->magazineRepository->getLimitMagazines($offset, $perPage);
 
                 $authorsMagazine = [];
 
